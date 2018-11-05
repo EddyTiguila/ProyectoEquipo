@@ -3,6 +3,7 @@ from .models import *
 from .forms import CompeticionForm
 from .forms import EquipoForm
 from .forms import TorneoForm
+from django.contrib import messages
 
 def home (request):
     return render(request, 'index.html')
@@ -27,14 +28,28 @@ def crearEquipo(request):
         form =EquipoForm()
         return render(request,'aplicacion/crear_equipo.html', {'form':form})
 def crearTorneo(request):
-    if request.method =='POST':
-        form=TorneoForm(request.POST)
-        if form.is_valid():
-            form.save()
+    if request.method == "POST":
+
+        formulario = TorneoForm(request.POST)
+
+        if formulario.is_valid():
+
+            torneo = Torneo.objects.create(nombre=formulario.cleaned_data['nombre'], lugar = formulario.cleaned_data['lugar'], premio=formulario.cleaned_data['premio'], incripcion=formulario.cleaned_data['incripcion'])
+
+            for equipo_id in request.POST.getlist('equipos'):
+
+                competicion = Competicion(nombre='--',equipo_id=equipo_id, torneo_id= torneo.id, descripcion='--')
+
+                competicion.save()
+
+            messages.add_message(request, messages.SUCCESS, 'Torneo Guardado Exitosamente')
             return redirect('listar_torneo')
+
     else:
-        form =TorneoForm()
-        return render(request,'aplicacion/crear_torneo.html', {'form':form})
+
+        formulario = TorneoForm()
+
+    return render(request, 'aplicacion/crear_torneo.html', {'formulario': formulario})
 
 def listarCompeticion(request):
     competicion = Competicion.objects.all()
@@ -72,13 +87,22 @@ def editarEquipo (request, id):
 def editarTorneo (request, id):
     torneo=Torneo.objects.get(id=id)
     if request.method =='GET':
-        form =TorneoForm(instance=torneo)
+        formulario =TorneoForm(instance=torneo)
     else:
-        form = TorneoForm(request.POST, instance = torneo)
-        if form.is_valid():
-            form.save()
+        formulario = TorneoForm(request.POST, instance = torneo)
+        if formulario.is_valid():
+            Torneo.objects.filter(id=id).update(nombre=formulario.cleaned_data['nombre'], lugar = formulario.cleaned_data['lugar'], premio=formulario.cleaned_data['premio'], incripcion=formulario.cleaned_data['incripcion'])
+
+            for equipo_id in request.POST.getlist('equipos'):
+
+                Competicion.objects.filter(id=id).update(nombre='--',equipo_id=equipo_id, torneo_id= torneo.id, descripcion='--')
+
+
+
+            messages.add_message(request, messages.SUCCESS, 'Torneo Guardado Exitosamente')
         return redirect ('listar_torneo')
-    return render(request, 'aplicacion/crear_torneo.html', {'form':form})
+    return render(request, 'aplicacion/crear_torneo.html', {'formulario':formulario})
+
 
 def eliminarCompeticion (request, id):
     competicion = Competicion.objects.get(id=id)
