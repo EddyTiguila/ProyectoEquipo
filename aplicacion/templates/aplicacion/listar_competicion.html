@@ -16,10 +16,16 @@
   <div class="card mb-3">
         <div class="card-header">
           <i class="fas fa-table" ></i>
-            Lista competicion
+<div class="text-center">
+            Lista Competicion
+          </div>
+            <div style="float: rigth;">
 <a href="{%url 'listar_equipo'%}">Equipo</a>
 <a href="{%url 'listar_torneo'%}">Torneo</a>
+
 <a href="{%url 'index'%}">Salir</a>
+
+</div>
           </div>
           <div class="card-body">
             <div class="table-responsive">
@@ -58,7 +64,7 @@
 
 
 
-  <a href="{%url 'CrearCompeticion'%}">crear nuevo</a>
+  <a href="{%url 'CrearCompeticion'%}" class="btn btn-primary btn-block">crear nuevo</a>
 
 
 
